@@ -1,4 +1,9 @@
-import * as moduleAlias from 'module-alias';
+import * as moduleAlias from "module-alias";
+import RedisClient from "@config/redis";
+import { createServer } from "@config/express";
+import { AddressInfo } from "net";
+import http from "http";
+import "dotenv/config";
 
 const sourcePath = 'src';
 moduleAlias.addAliases({
@@ -9,10 +14,6 @@ moduleAlias.addAliases({
     '@middleware': `${sourcePath}/middleware`,
 });
 
-import {createServer} from "@config/express";
-import {AddressInfo} from "net";
-import http from 'http';
-
 const host = process.env.HOST || 'localhost';
 const port = process.env.PORT || '3000';
 
@@ -22,6 +23,8 @@ const startServer = async () => {
         const addressInfo = server.address() as AddressInfo;
         console.log(`Server is hosted at http://${addressInfo.address}:${addressInfo.port}`);
     })
+    await RedisClient.connect();
+    console.log('Connected to redis');
 
     const signalTrap: NodeJS.Signals[] = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
     signalTrap.forEach((type)=>{
