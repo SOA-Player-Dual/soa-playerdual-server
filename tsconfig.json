@@ -26,7 +26,8 @@
       "@config/*": ["src/config/*"],
       "@domain/*": ["src/domain/*"],
       "@controller/*": ["src/controller/*"],
-      "@middleware/*": ["src/middleware/*"]
+      "@middleware/*": ["src/middleware/*"],
+      "@model/*": ["src/model/*"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],
