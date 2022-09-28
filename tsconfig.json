@@ -27,7 +27,8 @@
       "@domain/*": ["src/domain/*"],
       "@controller/*": ["src/controller/*"],
       "@middleware/*": ["src/middleware/*"],
-      "@model/*": ["src/model/*"]
+      "@model/*": ["src/model/*"],
+      "@helper/*": ["src/helper/*"]
     }
   },
   "include": ["src/**/*", "__tests__/**/*"],
