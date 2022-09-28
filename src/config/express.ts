@@ -13,7 +13,7 @@ const createServer = (): express.Application => {
   app.disable('x-powered-by');
   app.use(errorHandler);
 
-  app.use('/v1', v1Router);
+  app.use('/api/v1', v1Router);
 
   app.use('/', (_req: Request, res: Response) => {
     return res.json({ msg: 'Welcome to player dual API endpoint' });
