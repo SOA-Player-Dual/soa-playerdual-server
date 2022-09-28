@@ -2,6 +2,7 @@ import { Router, Response, Request } from "express";
 import UserRouter from './user/user.router';
 const router = Router();
 
+// v1 api router
 router.use("/user", UserRouter);
 
 router.route("/")
