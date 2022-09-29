@@ -1,14 +1,17 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
+import { HttpError } from 'http-errors';
 
-const errorHandler = (error: Error, _req: Request, res: Response, next: NextFunction) => {
-  if (res.headersSent) return next(error);
-  if (error.name === "UnauthorizedError") {
-    return res.status(401).json({ "error-message": error.message });
+const errorHandler = (
+  error: HttpError,
+  _req: Request,
+  res: Response,
+  _next: NextFunction,
+) => {
+  try {
+    return res.status(error.statusCode).json({ msg: error.message });
+  } catch (_err) {
+    return res.status(500).json({ msg: 'Unexpected error from server' });
   }
-  if (error.name === "ValidationError") {
-    return res.status(401).json({ "error-message": error.message });
-  }
-  res.status(500).json({ "error-message": error.message });
 };
 
 export default errorHandler;
