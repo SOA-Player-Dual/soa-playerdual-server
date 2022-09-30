@@ -1,10 +1,10 @@
 import express, { NextFunction, Request, Response } from "express";
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import errorHandler from '@middleware/errorHandler';
-import v1Router from '@controller/v1';
-import morgan from 'morgan';
-import fs from 'fs';
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import errorHandler from "@middleware/errorHandler";
+import v1Router from "@controller/v1";
+import morgan from "morgan";
+import fs from "fs";
 import createError from "http-errors";
 import { jwtAuth } from "@middleware/jwt";
 
@@ -15,11 +15,11 @@ const createServer = (): express.Application => {
   app.use(cors());
   app.use(express.json());
   app.disable('x-powered-by');
-  app.use(jwtAuth);
-
   const accessLogStream = fs.createWriteStream(`log/server.log`, {flags: 'a'});
   app.use(morgan('common', {stream: accessLogStream}));
   app.use(morgan('dev'));
+
+  app.use(jwtAuth);
 
   app.use('/api/v1', v1Router);
 
