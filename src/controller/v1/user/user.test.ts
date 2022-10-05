@@ -9,22 +9,4 @@ describe('User', () => {
       });
     });
   });
-  describe('Login', () => {
-    describe('Valid username and password', () => {
-      it('Should return 200', async () => {
-        await supertest(createServer())
-          .post(`/api/v1/user/login`)
-          .send({ username: 'huythanhnguyen', password: 'huy123' })
-          .expect(200);
-      });
-    });
-    describe('Invalid username and password', () => {
-      it('Should return 401', async () => {
-        await supertest(createServer())
-          .post(`/api/v1/user/login`)
-          .send({ username: 'huythanhnguyen', password: 'huy123456' })
-          .expect(401);
-      });
-    });
-  });
 });
