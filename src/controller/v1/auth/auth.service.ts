@@ -10,6 +10,7 @@ import User, { IUser } from '@model/user.model';
 import { compare, hash } from '@helper/hash';
 import redisClient from '@config/redis';
 import createError from 'http-errors';
+import passport from 'passport';
 
 export const login = async (
   _req: Request,
@@ -100,3 +101,14 @@ export const renewRefreshToken = async (
     return next(e);
   }
 };
+
+export const googleAuth = passport.authenticate('google', { session: false });
+
+export const googleCallback =  (_req: Request, res: Response)=>{
+  try {
+    return res.json(_req.user);
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+}

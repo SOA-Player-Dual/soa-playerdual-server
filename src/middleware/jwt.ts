@@ -4,7 +4,7 @@ import { verifyAccessToken } from '@helper/jwt';
 
 const API = '/api/v1';
 const exclusive = {
-  GET: ['/user'],
+  GET: ['/user', '/auth/google', '/auth/google/callback', '/favicon.ico'],
   POST: ['/auth/login', "/auth/register"],
   PUT: [],
   DELETE: []

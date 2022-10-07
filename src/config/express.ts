@@ -7,6 +7,8 @@ import morgan from 'morgan';
 import fs from 'fs';
 import createError from 'http-errors';
 import { jwtAuth } from '@middleware/jwt';
+import '@config/passport';
+import passport from 'passport'
 
 const createServer = (): express.Application => {
   const app = express();
@@ -23,7 +25,7 @@ const createServer = (): express.Application => {
   });
   app.use(morgan('common', { stream: accessLogStream }));
   app.use(morgan('dev'));
-
+  app.use(passport.initialize())
   app.use(jwtAuth);
 
   app.use('/api/v1', v1Router);
