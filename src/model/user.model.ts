@@ -1,13 +1,13 @@
-import { Schema, Types, model } from 'mongoose';
+import { Schema, Types, model, Document } from 'mongoose';
 
 const defaultAvatar =
   'https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-portrait-176256935.jpg';
 
-export interface IUser {
-  _id?: Types.ObjectId;
+export interface IUser extends Document{
   username: string;
   password: string;
   email: string;
+  isVerify: boolean;
   gender: string;
   nickname: string;
   dateOfBirth: Date;
@@ -20,9 +20,13 @@ export interface IUser {
   followPlayers?: Types.ObjectId[];
   dateJoin: Date;
   donateTotal: number;
+  otp: {
+    code: number;
+    expire: Date;
+  }
 }
 
-const User = new Schema<IUser>({
+const User = new Schema({
   username: {
     type: String,
     required: true,
@@ -33,7 +37,11 @@ const User = new Schema<IUser>({
   },
   email: {
     type: String,
+  },
+  isVerify: {
+    type: Boolean,
     required: true,
+    default: false,
   },
   gender: {
     type: String,
@@ -90,6 +98,10 @@ const User = new Schema<IUser>({
     required: true,
     default: 0,
   },
+  otp: {
+    code: Number,
+    expire: Date,
+  }
 });
 
-export default model('User', User);
+export default model<IUser>('User', User);

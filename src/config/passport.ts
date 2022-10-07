@@ -28,7 +28,6 @@ passport.use(
       profile: Profile,
       _done: VerifyCallback,
     ) => {
-      console.log(profile);
       _done(null, profile);
     },
   ),
