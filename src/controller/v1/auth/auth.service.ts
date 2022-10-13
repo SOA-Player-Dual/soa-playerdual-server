@@ -5,12 +5,13 @@ import {
   verifyRefreshToken,
 } from '@helper/jwt';
 import { cookieFlags } from '@config/cookie';
-import User, { IUser } from '@model/user.model';
-
-import { compare, hash } from '@helper/hash';
+import User from '@model/user.model';
 import redisClient from '@config/redis';
 import createError from 'http-errors';
 import passport from 'passport';
+import axios from "axios";
+
+const AUTH_API = `${process.env.ACCOUNT_API}/api/v1/auth`;
 
 export const login = async (
   _req: Request,
@@ -18,27 +19,22 @@ export const login = async (
   next: NextFunction,
 ) => {
   try {
-    const user: IUser | undefined = await User.findOne({
-      username: _req.body.username,
-    });
-
-    //Login error
-    if (!user) return next(new createError.Unauthorized('Username not found'));
-    if (!compare(_req.body.password, user.password))
-      return next(new createError.Unauthorized('Wrong password'));
-
-    //Login success
+    const result = await axios.post(`${AUTH_API}/login`, _req.body);
+    const _id = result.data.data._id;
     const accessToken = signAccessToken({
-      _id: user._id,
+      _id,
     });
-    const refreshToken = signRefreshToken({ _id: user._id });
-    await redisClient.set(user._id.toString(), refreshToken);
+    const refreshToken = signRefreshToken({ _id});
+    await redisClient.set(_id, refreshToken);
     res.cookie('accessToken', accessToken, cookieFlags);
     res.cookie('refreshToken', refreshToken, cookieFlags);
     return res.json({
       msg: 'Login success',
     });
-  } catch (e) {
+  } catch (e ) {
+    if (axios.isAxiosError(e)){
+      return next(createError(e.response.status, e.response.data.msg));
+    }
     return next(e);
   }
 };
@@ -49,19 +45,12 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    const hashPassword = hash(_req.body.password);
-    const additions = {
-      password: hashPassword,
-      urlCode: _req.body.nickname,
-    };
-    if (await User.findOne({ username: _req.body.username }))
-      return next(new createError.Unauthorized('Username already exist'));
-    if (await User.findOne({ email: _req.body.email }))
-      return next(new createError.Unauthorized('Email already exist'));
-    const newUser = new User({ ..._req.body, ...additions });
-    await newUser.save();
+    await axios.post(`${AUTH_API}/register`, _req.body);
     return res.json({ msg: 'Register success' });
-  } catch (e) {
+  } catch (e ) {
+    if (axios.isAxiosError(e)){
+      return next(createError(e.response.status, e.response.data.msg));
+    }
     return next(e);
   }
 };
@@ -122,7 +111,7 @@ export const googleCallback = async (
           'Something went wrong with google authentication',
         ),
       );
-    let _User = await User.findOne({ email: email });
+    const _User = await User.findOne({ email: email });
     if (!_User)
       return res.status(401).json({
         msg: 'Account not exist, redirect to register',
