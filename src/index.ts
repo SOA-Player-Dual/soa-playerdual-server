@@ -2,7 +2,6 @@ import * as moduleAlias from 'module-alias';
 import RedisClient from '@config/redis';
 import { createServer } from '@config/express';
 import { AddressInfo } from 'net';
-import mongoose from 'mongoose';
 import http from 'http';
 import 'dotenv/config';
 
@@ -15,8 +14,8 @@ moduleAlias.addAliases({
   '@middleware': `${sourcePath}/middleware`,
 });
 
-const host = process.env.HOST || 'localhost';
-const port = process.env.PORT || '3000';
+const host = process.env.HOST;
+const port = process.env.PORT;
 
 const startServer = async () => {
   const app = await createServer();
@@ -28,8 +27,7 @@ const startServer = async () => {
   });
 
   Promise.all([
-    RedisClient.connect().then(() => 'Redis'),
-    mongoose.connect(process.env.MONGO_URI).then(() => 'Mongodb'),
+    RedisClient.connect().then(() => 'Redis')
   ]).then((_: string[]) => {
     console.log(`Connected to ${_}`);
   });

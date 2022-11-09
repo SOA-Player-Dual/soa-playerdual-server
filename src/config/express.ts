@@ -14,7 +14,9 @@ const createServer = (): express.Application => {
   const app = express();
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
-  app.use(cors());
+  app.use(cors({
+    origin: JSON.stringify(process.env.CLIENTS)
+  }));
   app.use(express.json());
   app.disable('x-powered-by');
   if (!fs.existsSync('log')){

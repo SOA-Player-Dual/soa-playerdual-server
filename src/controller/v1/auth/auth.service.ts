@@ -4,12 +4,10 @@ import {
   signRefreshToken,
   verifyRefreshToken,
 } from '@helper/jwt';
-import { cookieFlags } from '@config/cookie';
-import User from '@model/user.model';
 import redisClient from '@config/redis';
 import createError from 'http-errors';
 import passport from 'passport';
-import axios from "axios";
+import axios from 'axios';
 
 const AUTH_API = `${process.env.ACCOUNT_API}/api/v1/auth`;
 
@@ -19,20 +17,20 @@ export const login = async (
   next: NextFunction,
 ) => {
   try {
-    const result = await axios.post(`${AUTH_API}/login`, _req.body);
-    const _id = result.data.data._id;
+    const axiosResponse = await axios.post(`${AUTH_API}/login`, _req.body);
+    const id = axiosResponse.data.data.id;
     const accessToken = signAccessToken({
-      _id,
+      id,
     });
-    const refreshToken = signRefreshToken({ _id});
-    await redisClient.set(_id, refreshToken);
-    res.cookie('accessToken', accessToken, cookieFlags);
-    res.cookie('refreshToken', refreshToken, cookieFlags);
+    const refreshToken = signRefreshToken({ id });
+    await redisClient.set(id, refreshToken);
     return res.json({
       msg: 'Login success',
+      accessToken,
+      refreshToken,
     });
-  } catch (e ) {
-    if (axios.isAxiosError(e)){
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
       return next(createError(e.response.status, e.response.data.msg));
     }
     return next(e);
@@ -47,8 +45,8 @@ export const register = async (
   try {
     await axios.post(`${AUTH_API}/register`, _req.body);
     return res.json({ msg: 'Register success' });
-  } catch (e ) {
-    if (axios.isAxiosError(e)){
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
       return next(createError(e.response.status, e.response.data.msg));
     }
     return next(e);
@@ -61,7 +59,7 @@ export const renewRefreshToken = async (
   next: NextFunction,
 ) => {
   try {
-    const refreshToken = _req.cookies['refreshToken'];
+    const refreshToken = _req.headers.authorization.split(' ')[1];
     const userId = verifyRefreshToken(refreshToken);
 
     //Error with refresh token
@@ -82,12 +80,14 @@ export const renewRefreshToken = async (
     }
 
     //Refresh token legit
-    const newAccessToken = signAccessToken({ _id: userId });
-    const newRefreshToken = signRefreshToken({ _id: userId });
-    res.cookie('accessToken', newAccessToken, cookieFlags);
-    res.cookie('refreshToken', newRefreshToken, cookieFlags);
+    const newAccessToken = signAccessToken({ id: userId });
+    const newRefreshToken = signRefreshToken({ id: userId });
     await redisClient.set(userId, newRefreshToken);
-    return res.json({ msg: 'Get access token successfully' });
+    return res.json({
+      msg: 'Get access token successfully',
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
   } catch (e) {
     return next(e);
   }
@@ -111,23 +111,29 @@ export const googleCallback = async (
           'Something went wrong with google authentication',
         ),
       );
-    const _User = await User.findOne({ email: email });
+    const _User = {
+      id: 'asdasd',
+      detail: 'Wait axios call',
+    };
     if (!_User)
       return res.status(401).json({
         msg: 'Account not exist, redirect to register',
         data: { email: email },
       });
     const accessToken = signAccessToken({
-      _id: _User._id,
+      id: _User.id,
     });
-    const refreshToken = signRefreshToken({ _id: _User._id });
-    await redisClient.set(_User._id.toString(), refreshToken);
-    res.cookie('accessToken', accessToken, cookieFlags);
-    res.cookie('refreshToken', refreshToken, cookieFlags);
+    const refreshToken = signRefreshToken({ id: _User.id });
+    await redisClient.set(_User.id.toString(), refreshToken);
     return res.json({
       msg: 'Login success via google',
+      accessToken,
+      refreshToken,
     });
   } catch (e) {
+    if (axios.isAxiosError(e)) {
+      return next(createError(e.response.status, e.response.data.msg));
+    }
     return next(e);
   }
 };

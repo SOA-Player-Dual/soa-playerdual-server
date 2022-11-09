@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import User from '@model/user.model';
 
 export const getAllUser = async (
   _req: Request,
@@ -7,7 +6,7 @@ export const getAllUser = async (
   next: NextFunction,
 ) => {
   try {
-    return res.json(await User.find({}).limit(100));
+    return res.json({msg: "Users data"})
   } catch (e) {
     return next(e);
   }
