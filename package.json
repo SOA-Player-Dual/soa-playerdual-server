@@ -4,9 +4,9 @@
   "description": "API Gateway for soa Player Dual project",
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node -r tsconfig-paths/register src/index",
+    "start": "node build/src/index.js",
     "dev": "nodemon -r tsconfig-paths/register src/index.ts",
-    "build": "tsc --build",
+    "build": "tsc",
     "clean": "tsc --build --clean",
     "test": "jest --passWithNoTests",
     "prepare": "husky install"

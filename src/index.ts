@@ -1,18 +1,22 @@
 import * as moduleAlias from 'module-alias';
-import RedisClient from '@config/redis';
-import { createServer } from '@config/express';
-import { AddressInfo } from 'net';
-import http from 'http';
-import 'dotenv/config';
-
-const sourcePath = 'src';
+const sourcePath = __dirname;
 moduleAlias.addAliases({
   '@server': sourcePath,
   '@config': `${sourcePath}/config`,
   '@domain': `${sourcePath}/domain`,
   '@controller': `${sourcePath}/controller`,
   '@middleware': `${sourcePath}/middleware`,
+  '@model': `${sourcePath}/model`,
+  '@helper': `${sourcePath}/helper`,
+  '@interface': `${sourcePath}/interface`,
 });
+import RedisClient from '@config/redis';
+import { createServer } from '@config/express';
+import { AddressInfo } from 'net';
+import http from 'http';
+import 'dotenv/config';
+
+
 
 const host = process.env.HOST;
 const port = process.env.PORT;
