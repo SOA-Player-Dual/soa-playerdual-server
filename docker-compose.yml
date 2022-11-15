@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  auth:
+    image: cloneee/auth-server
+    container_name: auth-server
+    hostname: auth-server
+    environment:
+      HOST: 0.0.0.0
+    ports:
+      - '8001:8001'
+    networks:
+      - proxynet
+  api-gateway:
+    image: cloneee/api-gateway
+    container_name: api-gateway
+    environment:
+      HOST: 0.0.0.0
+      ACCOUNT_API: http://auth-server:8001
+    ports:
+      - '8000:8000'
+    networks:
+      - proxynet
+networks:
+  proxynet:
+    name: player-dual-network
