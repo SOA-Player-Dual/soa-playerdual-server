@@ -1,12 +1,106 @@
 import { NextFunction, Request, Response } from 'express';
+import apiClient from '@api/mainAPI';
 
-export const getAllUser = async (
+export const getUserById = async (
   _req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    return res.json({msg: "Users data"})
+    const { data } = await apiClient.get(`/api/user/id/${_req.params.id}`);
+    return res.json({ msg: 'Get user data by id', data });
+  } catch (e) {
+    return next(e);
+  }
+};
+export const getUserByUrlCode = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { data } = await apiClient.get(`/api/user/${_req.params.urlCode}`);
+    return res.json({ msg: 'Get user data by urlcode', data });
+  } catch (e) {
+    return next(e);
+  }
+};
+
+export const editUserInfo = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { data } = await apiClient.put(
+      `/api/user/${res.locals.id}`,
+      _req.body,
+    );
+    return res.json({ msg: 'Edit user data', data });
+  } catch (e) {
+    return next(e);
+  }
+};
+
+// Fix bug: OTP can't send
+export const sendOTP = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { data } = await apiClient.post('/api/otp', {
+      user_id: res.locals.id,
+      mail: _req.body.mail,
+    });
+    res.json({ msg: 'Send otp success, check your email', data });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const otpVerify = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { data } = await apiClient.post('/api/otp/verify', {
+      user_id: res.locals.id,
+      otp: _req.body.otp,
+    });
+    return res.json({ msg: 'Verify success', data });
+  } catch (e) {
+    return next(e);
+  }
+};
+
+export const getFollowing = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { data } = await apiClient.get(
+      `/api/follow/following/${res.locals.id}`,
+    );
+    return res.json({ msg: 'Following data', data });
+  } catch (e) {
+    return next(e);
+  }
+};
+
+export const followPlayer = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { data } = await apiClient.post(`/api/follow`, {
+      user_id: res.locals.id,
+      follower_id: _req.body.id,
+    });
+    return res.json({ msg: 'Follow player success', data });
   } catch (e) {
     return next(e);
   }

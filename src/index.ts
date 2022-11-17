@@ -9,6 +9,7 @@ moduleAlias.addAliases({
   '@model': `${sourcePath}/model`,
   '@helper': `${sourcePath}/helper`,
   '@interface': `${sourcePath}/interface`,
+  '@api': `${sourcePath}/api`,
 });
 import RedisClient from '@config/redis';
 import { createServer } from '@config/express';

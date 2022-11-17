@@ -10,9 +10,11 @@ const createInstance = (url: string) => {
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
-      console.log(error);
+      if (process.env.NODE_ENV === "development"){
+        console.log(error.response);
+      }
       return Promise.reject(
-        createError(error.response.status, error.response.data.error),
+        createError(error.response.status, error.response.data.error || ''),
       );
     },
   );

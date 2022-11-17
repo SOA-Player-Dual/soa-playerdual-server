@@ -1,15 +1,9 @@
-import { NextFunction, Request, Response } from 'express';
-import {
-  signAccessToken,
-  signRefreshToken,
-  verifyRefreshToken,
-} from '@helper/jwt';
+import {NextFunction, Request, Response} from 'express';
+import {signAccessToken, signRefreshToken, verifyRefreshToken,} from '@helper/jwt';
 import redisClient from '@config/redis';
+import authClient from '@api/authAPI';
 import createError from 'http-errors';
 import passport from 'passport';
-import axios from 'axios';
-
-const AUTH_API = `${process.env.ACCOUNT_API}/api/v1/auth`;
 
 export const login = async (
   _req: Request,
@@ -17,8 +11,8 @@ export const login = async (
   next: NextFunction,
 ) => {
   try {
-    const axiosResponse = await axios.post(`${AUTH_API}/login`, _req.body);
-    const id = axiosResponse.data.data.id;
+    const { data } = await authClient.post(`/auth/login`, _req.body);
+    const id = data.data.id;
     const accessToken = signAccessToken({
       id,
     });
@@ -30,9 +24,6 @@ export const login = async (
       refreshToken,
     });
   } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return next(createError(e.response.status, e.response.data.msg));
-    }
     return next(e);
   }
 };
@@ -43,12 +34,9 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    await axios.post(`${AUTH_API}/register`, _req.body);
+    await authClient.post(`/auth/register`, _req.body);
     return res.json({ msg: 'Register success' });
   } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return next(createError(e.response.status, e.response.data.msg));
-    }
     return next(e);
   }
 };
@@ -131,9 +119,6 @@ export const googleCallback = async (
       refreshToken,
     });
   } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return next(createError(e.response.status, e.response.data.msg));
-    }
     return next(e);
   }
 };

@@ -58,6 +58,7 @@
     "morgan": "^1.10.0",
     "passport": "^0.6.0",
     "passport-google-oauth20": "^2.0.0",
+    "path-to-regexp": "^6.2.1",
     "redis": "^4.3.1"
   }
 }
