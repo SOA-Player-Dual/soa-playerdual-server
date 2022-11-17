@@ -16,7 +16,7 @@ const createServer = (): express.Application => {
   app.use(cookieParser());
   app.use(
     cors({
-      origin: JSON.stringify(process.env.CLIENTS),
+      origin: JSON.parse(process.env.CLIENTS),
     }),
   );
   app.use(express.json());
