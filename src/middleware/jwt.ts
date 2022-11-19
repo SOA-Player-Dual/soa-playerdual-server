@@ -5,8 +5,8 @@ import { pathToRegexp } from 'path-to-regexp';
 
 const API = '/api/v1';
 const exclusive = {
-  GET: ['/user', '/auth/google', '/auth/google/callback', '/favicon.ico', '/game', '/game/:id'],
-  POST: ['/auth/login', '/auth/register', '/auth/refresh'],
+  GET: ['/auth/google', '/auth/google/callback', '/favicon.ico', '/game', '/game/:id', '/auth/refresh'],
+  POST: ['/auth/login', '/auth/register'],
   PUT: [],
   DELETE: [],
 };
@@ -24,8 +24,9 @@ export const jwtAuth = (_req: Request, res: Response, next: NextFunction) => {
   if (whitelist[METHOD].filter(regex => regex.test(PATH)).length !== 0) return next();
   const accessToken = _req.headers?.authorization?.split(' ')[1];
   if (!accessToken) return next(new createError.Unauthorized('Missing token'));
-  const id = verifyAccessToken(accessToken);
+  const {id, role} = verifyAccessToken(accessToken);
   if (!id) return next(new createError.Unauthorized('Token invalid'));
   res.locals.id = id;
+  res.locals.role = role;
   return next();
 };

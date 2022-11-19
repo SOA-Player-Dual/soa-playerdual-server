@@ -5,7 +5,8 @@ const router = Router();
 
 router.route('/login').post(login);
 router.route('/register').post(register);
-router.route('/refresh').post(renewRefreshToken);
+router.route('/refresh').get(renewRefreshToken);
+router.route('/password').post()
 router.route('/google').get(googleAuth);
 router.route('/google/callback').get(googleAuth, googleCallback);
 

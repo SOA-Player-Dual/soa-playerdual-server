@@ -1,6 +1,19 @@
 import { NextFunction, Request, Response } from 'express';
 import apiClient from '@api/mainAPI';
 
+export const getUser = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) =>{
+  try {
+    const { data } = await apiClient.get(`/api/user/id/${res.locals.id}`);
+    return res.json({ msg: 'Get user data', data });
+  } catch (e) {
+    return next(e);
+  }
+}
+
 export const getUserById = async (
   _req: Request,
   res: Response,
@@ -42,7 +55,6 @@ export const editUserInfo = async (
   }
 };
 
-// Fix bug: OTP can't send
 export const sendOTP = async (
   _req: Request,
   res: Response,
@@ -90,18 +102,3 @@ export const getFollowing = async (
   }
 };
 
-export const followPlayer = async (
-  _req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { data } = await apiClient.post(`/api/follow`, {
-      user_id: res.locals.id,
-      follower_id: _req.body.id,
-    });
-    return res.json({ msg: 'Follow player success', data });
-  } catch (e) {
-    return next(e);
-  }
-};

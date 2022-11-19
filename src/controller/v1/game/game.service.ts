@@ -13,6 +13,20 @@ export const getAllGame = async (
     next(e);
   }
 };
+
+export const addNewGame = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) =>{
+  try {
+    const { data } = await apiClient.post('/api/game', _req.body);
+    res.json({ msg: 'Add new game', data });
+  } catch (e) {
+    next(e);
+  }
+}
+
 export const getGameById = async (
   _req: Request,
   res: Response,

@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { getAllGame, getGameById } from '@controller/v1/game/game.service'
+import { addNewGame, getAllGame, getGameById } from '@controller/v1/game/game.service'
+import isAdmin from '@middleware/isAdmin'
 
 const router = Router();
 
-// TODO: store new game
-router.route('/').get(getAllGame);
+router.route('/').get(getAllGame).post(isAdmin, addNewGame);
 router.route('/:id').get(getGameById);
 
 

@@ -1,9 +1,14 @@
-import {NextFunction, Request, Response} from 'express';
-import {signAccessToken, signRefreshToken, verifyRefreshToken,} from '@helper/jwt';
+import { NextFunction, Request, Response } from 'express';
+import {
+  signAccessToken,
+  signRefreshToken,
+  verifyRefreshToken,
+} from '@helper/jwt';
 import redisClient from '@config/redis';
 import authClient from '@api/authAPI';
 import createError from 'http-errors';
 import passport from 'passport';
+import mainAPI from '@api/mainAPI';
 
 export const login = async (
   _req: Request,
@@ -34,7 +39,9 @@ export const register = async (
   next: NextFunction,
 ) => {
   try {
-    await authClient.post(`/auth/register`, _req.body);
+    const { data } = await authClient.post(`/auth/register`, _req.body);
+    const { id, email } = data.data.user;
+    mainAPI.post('/api/otp/send', { user_id: id, mail: email }).then((r) => r);
     return res.json({ msg: 'Register success' });
   } catch (e) {
     return next(e);
@@ -48,7 +55,7 @@ export const renewRefreshToken = async (
 ) => {
   try {
     const refreshToken = _req.headers.authorization.split(' ')[1];
-    const userId = verifyRefreshToken(refreshToken);
+    const { id: userId } = verifyRefreshToken(refreshToken);
 
     //Error with refresh token
     if (!userId)
@@ -118,6 +125,22 @@ export const googleCallback = async (
       accessToken,
       refreshToken,
     });
+  } catch (e) {
+    return next(e);
+  }
+};
+
+export const changePassword = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    await authClient.post('/auth/password', {
+      id: res.locals.id,
+      ..._req.body
+    });
+    res.json({ msg: 'Check your email for' });
   } catch (e) {
     return next(e);
   }

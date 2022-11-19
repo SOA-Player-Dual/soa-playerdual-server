@@ -1,8 +1,10 @@
-import jwt from 'jsonwebtoken';
-import 'dotenv/config';
+import jwt from 'jsonwebtoken'
+import 'dotenv/config'
+import createError from 'http-errors'
 
 export interface IJwt {
   id: string;
+  role: string;
   iat: number;
   exp: number;
 }
@@ -15,20 +17,18 @@ export const signRefreshToken = (payload: any) => {
   return jwt.sign(payload, process.env.REFRESH_SECRET, { expiresIn: '1y' });
 };
 
-export const verifyAccessToken = (token: string) => {
+export const verifyAccessToken = (token: string):IJwt => {
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_SECRET) as IJwt;
-    return decoded.id;
+    return jwt.verify(token, process.env.ACCESS_SECRET);
   } catch (err) {
-    return '';
+    throw createError(401, 'Invalid access token');
   }
 };
 
-export const verifyRefreshToken = (token: string) => {
+export const verifyRefreshToken = (token: string):IJwt => {
   try {
-    const decoded = jwt.verify(token, process.env.REFRESH_SECRET) as IJwt;
-    return decoded.id;
+    return jwt.verify(token, process.env.REFRESH_SECRET) as IJwt;
   } catch (err) {
-    return '';
+    throw createError(401, 'Invalid refresh token');
   }
 };
