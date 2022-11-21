@@ -18,8 +18,10 @@ export const login = async (
   try {
     const { data } = await authClient.post(`/auth/login`, _req.body);
     const id = data.data.id;
+    const role = data.data.role;
     const accessToken = signAccessToken({
       id,
+      role,
     });
     const refreshToken = signRefreshToken({ id });
     await redisClient.set(id, refreshToken);
@@ -40,8 +42,10 @@ export const register = async (
 ) => {
   try {
     const { data } = await authClient.post(`/auth/register`, _req.body);
-    const { id, email } = data.data.user;
-    mainAPI.post('/api/otp/send', { user_id: id, mail: email }).then((r) => r);
+    const { id } = data.data.user;
+    mainAPI
+      .post('/api/otp/send', { user_id: id, type: 'Register' })
+      .then((r) => r);
     return res.json({ msg: 'Register success' });
   } catch (e) {
     return next(e);
@@ -56,7 +60,7 @@ export const renewRefreshToken = async (
   try {
     const refreshToken = _req.headers.authorization.split(' ')[1];
     const { id: userId } = verifyRefreshToken(refreshToken);
-
+    console.log(userId);
     //Error with refresh token
     if (!userId)
       return next(
@@ -138,10 +142,50 @@ export const changePassword = async (
   try {
     await authClient.post('/auth/password', {
       id: res.locals.id,
-      ..._req.body
+      ..._req.body,
     });
-    res.json({ msg: 'Check your email for' });
+    res.json({ msg: 'Password has changed' });
   } catch (e) {
     return next(e);
+  }
+};
+
+export const getOTPRecover = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    await mainAPI.post('/api/recover', {
+      username: _req.body.username,
+    });
+    res.json({ msg: 'Check your email' });
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const recoverPassword = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { username, otp } = _req.body;
+    const { data } = await mainAPI.post('/api/recover/verify', {
+      username,
+      otp,
+    });
+    const id = data.userID;
+    const role = data.role;
+    const accessToken = signAccessToken({
+      id,
+      role,
+    });
+    const refreshToken = signRefreshToken({ id });
+    await redisClient.set(id, refreshToken);
+    res.json({ msg: 'Recover password', accessToken, refreshToken });
+  } catch (e) {
+    next(e);
   }
 };
