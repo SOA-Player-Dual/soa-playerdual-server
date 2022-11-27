@@ -7,7 +7,6 @@ export const getAllPlayer = async (
   next: NextFunction,
 ) => {
   try {
-    console.log(_req.query?.searchKey);
     if (_req.query?.searchKey) {
       const { data } = await apiClient(
         `/api/search?searchKey=${_req.query?.searchKey}`,
@@ -16,6 +15,32 @@ export const getAllPlayer = async (
     }
     const { data } = await apiClient.get('/api/user');
     return res.json({ msg: 'Get all player data', data });
+  } catch (e) {
+    return next(e);
+  }
+};
+
+export const getPlayerByGame = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { data } = await apiClient.get(`/api/playergame/${_req.params.id}`);
+    return res.json({ msg: 'Filter by game', data });
+  } catch (e) {
+    return next(e);
+  }
+};
+
+export const getPlayerByGender = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { data } = await apiClient.get(`/api/user/gender/${_req.params.gender}`);
+    return res.json({ msg: 'Filter by game', data });
   } catch (e) {
     return next(e);
   }
